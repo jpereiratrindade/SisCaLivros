@@ -15,12 +15,12 @@ sudo dnf install -y java-21-openjdk java-21-openjdk-devel sqlite3 unzip wget gtk
 echo "Configurando o JavaFX..."
 JAVAFX_VERSION="21.0.5"
 JAVAFX_DIR="/usr/local/share/javafx-sdk"
-JAVAFX_ZIP="openjfx-21.0.5_linux-x64_bin-sdk.zip"
+JAVAFX_ZIP="javafx-sdk-$JAVAFX_VERSION.zip"
 
 # Baixar e configurar JavaFX
 if [ ! -d "$JAVAFX_DIR" ]; then
     sudo mkdir -p "$JAVAFX_DIR"
-    wget -q "https://download2.gluonhq.com/javafx-$JAVAFX_VERSION/$JAVAFX_ZIP" -O "/tmp/$JAVAFX_ZIP"
+    wget -q "https://download2.gluonhq.com/javafx21.0.5/javafx-sdk-21.0.5.zip" -O "/tmp/$JAVAFX_ZIP"
     sudo unzip -q "/tmp/$JAVAFX_ZIP" -d "/usr/local/share/"
     sudo mv "/usr/local/share/javafx-sdk-$JAVAFX_VERSION" "$JAVAFX_DIR"
     rm "/tmp/$JAVAFX_ZIP"
@@ -44,26 +44,33 @@ else
     echo "SQLite JDBC já configurado em $SQLITE_JDBC_DIR."
 fi
 
-# Configurar diretório de instalação do aplicativo
-APP_DIR="/usr/local/share/SisCaLivros"
-BIN_DIR="/usr/local/bin"
+# Compilar o projeto na pasta de clonagem
+echo "Compilando o projeto..."
+./compile.sh
 
-if [ -d "$APP_DIR" ]; then
-    sudo rm -rf "$APP_DIR"
+# Verificar a compilação
+if [ $? -eq 0 ]; then
+    echo "Compilação concluída com sucesso!"
+else
+    echo "Erro na compilação. Verifique os logs acima."
+    exit 1
 fi
 
-sudo mkdir -p "$APP_DIR"
-sudo cp -r ./* "$APP_DIR"
-sudo chmod -R 755 "$APP_DIR"
+# Mover os arquivos compilados para o diretório final
+APP_DIR="/usr/local/share/SisCaLivros"
+BIN_DIR="$APP_DIR/bin"
+
+echo "Instalando arquivos no diretório final..."
+sudo rm -rf "$APP_DIR"
+sudo mkdir -p "$BIN_DIR"
+sudo cp -r bin/* "$BIN_DIR"
+sudo cp -r Resources "$APP_DIR"
+sudo cp -r images "$APP_DIR"
+sudo cp run.sh "$APP_DIR"
 
 # Criar link simbólico para o script de execução
-sudo bash -c "cat <<EOL > $APP_DIR/run.sh
-#!/bin/bash
-java --module-path $JAVAFX_DIR/lib --add-modules javafx.controls,javafx.fxml -cp $APP_DIR/bin:$SQLITE_JDBC_DIR/$SQLITE_JDBC_JAR main.Main
-EOL"
-
-sudo chmod +x "$APP_DIR/run.sh"
-sudo ln -sf "$APP_DIR/run.sh" "$BIN_DIR/SisCaLivros"
+echo "Criando link simbólico para execução..."
+sudo ln -sf "$APP_DIR/run.sh" /usr/local/bin/SisCaLivros
 
 # Configurar ícone no Dashboard
 echo "Configurando o ícone no Dashboard..."
