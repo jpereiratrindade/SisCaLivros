@@ -15,15 +15,20 @@ sudo dnf install -y java-21-openjdk java-21-openjdk-devel sqlite3 unzip wget gtk
 echo "Configurando o JavaFX..."
 JAVAFX_VERSION="21.0.5"
 JAVAFX_DIR="/usr/local/share/javafx-sdk"
-JAVAFX_ZIP="javafx-sdk-$JAVAFX_VERSION.zip"
+JAVAFX_ZIP="openjfx-21.0.5_linux-x64_bin-sdk.zip"
 
-# Baixar e configurar JavaFX
+# Verificar se o arquivo ZIP do JavaFX está na pasta
+if [ ! -f "$JAVAFX_ZIP" ]; then
+    echo "Erro: O arquivo $JAVAFX_ZIP não foi encontrado na pasta atual."
+    echo "Certifique-se de que o arquivo está presente e tente novamente."
+    exit 1
+fi
+
+# Configurar o JavaFX no diretório correto
 if [ ! -d "$JAVAFX_DIR" ]; then
     sudo mkdir -p "$JAVAFX_DIR"
-    wget -q "https://download2.gluonhq.com/openjfx/21.0.5/openjfx-21.0.5_linux-x64_bin-sdk.zip" -O "/tmp/$JAVAFX_ZIP"
-    sudo unzip -q "/tmp/$JAVAFX_ZIP" -d "/usr/local/share/"
+    sudo unzip -q "$JAVAFX_ZIP" -d "/usr/local/share/"
     sudo mv "/usr/local/share/javafx-sdk-$JAVAFX_VERSION" "$JAVAFX_DIR"
-    rm "/tmp/$JAVAFX_ZIP"
     echo "JavaFX configurado em $JAVAFX_DIR."
 else
     echo "JavaFX já configurado em $JAVAFX_DIR."
@@ -66,7 +71,29 @@ sudo mkdir -p "$BIN_DIR"
 sudo cp -r bin/* "$BIN_DIR"
 sudo cp -r Resources "$APP_DIR"
 sudo cp -r images "$APP_DIR"
-sudo cp run.sh "$APP_DIR"
+
+# Criar o arquivo run.sh diretamente no diretório de instalação
+echo "Criando o arquivo run.sh..."
+sudo bash -c "cat <<EOL > $APP_DIR/run.sh
+#!/bin/bash
+
+# Configuração de caminhos
+JAVAFX_HOME=\"$JAVAFX_DIR\"
+SQLITE_JDBC=\"$SQLITE_JDBC_DIR/sqlite-jdbc-3.47.1.0.jar\"
+APP_DIR=\"$APP_DIR\"
+
+# Executar o aplicativo
+java --module-path "/usr/local/share/javafx-sdk/javafx-sdk-21.0.5/lib" --add-modules javafx.controls,javafx.fxml -cp "$APP_DIR/bin:$SQLITE_JDBC" main.Main
+
+# Verificação do status de execução
+if [ \$? -eq 0 ]; then
+    echo \"Aplicativo executado com sucesso!\"
+else
+    echo \"Erro ao executar o aplicativo. Verifique os logs acima.\"
+fi
+EOL"
+sudo chmod +x "$APP_DIR/run.sh"
+echo "Arquivo run.sh criado com sucesso!"
 
 # Criar link simbólico para o script de execução
 echo "Criando link simbólico para execução..."
