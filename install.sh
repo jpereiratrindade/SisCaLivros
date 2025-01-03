@@ -20,7 +20,7 @@ JAVAFX_ZIP="javafx-sdk-$JAVAFX_VERSION.zip"
 # Baixar e configurar JavaFX
 if [ ! -d "$JAVAFX_DIR" ]; then
     sudo mkdir -p "$JAVAFX_DIR"
-    wget -q "https://download2.gluonhq.com/javafx21.0.5/javafx-sdk-21.0.5.zip" -O "/tmp/$JAVAFX_ZIP"
+    wget -q "https://download2.gluonhq.com/openjfx/21.0.5/openjfx-21.0.5_linux-x64_bin-sdk.zip" -O "/tmp/$JAVAFX_ZIP"
     sudo unzip -q "/tmp/$JAVAFX_ZIP" -d "/usr/local/share/"
     sudo mv "/usr/local/share/javafx-sdk-$JAVAFX_VERSION" "$JAVAFX_DIR"
     rm "/tmp/$JAVAFX_ZIP"
