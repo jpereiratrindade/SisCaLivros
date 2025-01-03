@@ -10,6 +10,7 @@ SQLITE_JDBC="$HOME/libs/sqlite/sqlite-jdbc-3.47.1.0.jar"
 # Diretórios do projeto
 SRC_DIR="src"
 BIN_DIR="bin"
+RESOURCES_DIR="Resources"
 MAIN_DIR="$SRC_DIR/main"
 MODEL_DIR="$SRC_DIR/model"
 
@@ -30,7 +31,7 @@ fi
 # Certifique-se de que o diretório bin existe
 mkdir -p $BIN_DIR
 
-# Comando de compilação
+# Compilar os arquivos Java
 echo "Compilando os arquivos Java..."
 javac \
     --module-path "$JAVAFX_HOME/lib" \
@@ -42,8 +43,19 @@ javac \
 
 # Verificação do status da compilação
 if [ $? -eq 0 ]; then
-    echo "Compilação concluída com sucesso! Os arquivos estão em $BIN_DIR."
+    echo "Compilação concluída com sucesso!"
 else
     echo "Erro na compilação. Verifique os arquivos fonte e tente novamente."
+    exit 1
+fi
+
+# Copiar a pasta Resources para dentro de bin
+echo "Movendo recursos adicionais..."
+cp -r $RESOURCES_DIR $BIN_DIR
+
+if [ $? -eq 0 ]; then
+    echo "Recursos copiados com sucesso para $BIN_DIR."
+else
+    echo "Erro ao copiar os recursos. Verifique se a pasta $RESOURCES_DIR existe."
     exit 1
 fi
