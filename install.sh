@@ -15,7 +15,7 @@ sudo dnf install -y java-21-openjdk java-21-openjdk-devel sqlite3 unzip wget gtk
 echo "Configurando o JavaFX..."
 JAVAFX_VERSION="21.0.5"
 JAVAFX_DIR="/usr/local/share/javafx-sdk"
-JAVAFX_ZIP="javafx-sdk-$JAVAFX_VERSION.zip"
+JAVAFX_ZIP="openjfx-21.0.5_linux-x64_bin-sdk.zip"
 
 # Baixar e configurar JavaFX
 if [ ! -d "$JAVAFX_DIR" ]; then
